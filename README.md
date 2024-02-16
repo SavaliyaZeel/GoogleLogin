@@ -1,79 +1,100 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+Google login steps.
 
-# Getting Started
+- Step 1 : Create firebase account.
+      
+  ![Screenshot 2024-02-16 at 4 25 10 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/d2d04288-7d3b-4894-8cdf-26256a5e367d)
+- Step 2 : Select android platform.
+      
+   ![Screenshot 2024-02-16 at 4 26 32 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/c2cbb968-d275-4920-84cd-a707c0ca079b)
+   
+   ![Screenshot 2024-02-16 at 4 34 41 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/7d581f1e-7fb9-41b6-bb04-31d719111eb5)
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+- Step 3 : Find SHA-1 key using ```./gradlew signinReport``` command on terminal.
 
-## Step 1: Start the Metro Server
+   - If getting issue of SHA-1, delete keystore file and generate new keystore file.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+       ![Screenshot 2024-02-16 at 4 53 12 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/e878d727-0eaf-4587-9fff-88e897eccdc0)
+       - ```keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000``` use this command on ```android/app``` directory for generate new keystore file and fill details.
+- Step 4 : Download ```google-service.json``` file and set in ```andoird/app``` folder.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+   ![Screenshot 2024-02-16 at 5 09 20 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/42190e09-8b93-41ea-bd9c-2b9164856c60)
+- Step 5 : add ```classpath 'com.google.gms:google-services:4.4.0'``` in ```android/build.gradle```.
 
-```bash
-# using npm
-npm start
+   ![Screenshot 2024-02-16 at 5 11 00 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/a6059a7c-104f-43f1-965f-aa0df98caa99)
+- Step 6 : add ```apply plugin: 'com.google.gms.google-services'``` in top of ```android/app/build.gradle``` file.
 
-# OR using Yarn
-yarn start
+   ![Screenshot 2024-02-16 at 5 12 17 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/05f256a0-0842-4733-b9e0-26acfe275a36)
+- Step 7 : add below 2 line in ```android/app/build.gradle``` file.
+    ```
+   implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+   implementation("com.google.firebase:firebase-analytics")
+     ```
+
+   ![Screenshot 2024-02-16 at 5 12 48 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/89f97610-1ac3-4a4e-bea7-9fb6e65c7e83)
+- Step 8 : Download ```@react-native-google-signin/google-signin``` library.
+
+           npm i @react-native-google-signin/google-signin
+                          // or
+           npx yarn @react-native-google-signin/google-signin
+- Step 9 : Add GoogleSignin.configure code in useEffect.
+
+   ```
+   GoogleSignin.configure({
+      webClientId: ''
+   });
+   ```
+
+   ![Screenshot 2024-02-16 at 5 17 25 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/218aadd8-39ae-4b3a-b17b-0f41898392dc)
+- Step 10 : Open firebase project and move to authentication and enable google.
+
+   ![Screenshot 2024-02-16 at 5 20 09 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/952599cc-0af0-428e-b64f-18b27fb82c40)
+
+   ![Screenshot 2024-02-16 at 5 20 19 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/11a43888-bff3-4c3c-af99-85c45efd9039)
+
+   ![Screenshot 2024-02-16 at 5 21 07 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/21de3559-ef0a-4c0c-83c5-f90bfeeace89)
+- Step 11 : click on edit button of google and click on "Web SDK configuration" and copy “web client Id” and past on your code.
+
+     ```
+		For example : - 
+			my web client  id is “abcd”		
+		GoogleSignin.configure({
+			webClientId: 'abcd', <—— past web client id heare
+		});
+     ```
+
+   ![Screenshot 2024-02-16 at 5 24 58 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/48185490-3542-4f92-a872-5256bb861edc)
+
+   ![Screenshot 2024-02-16 at 5 21 31 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/6fd6c0f0-d751-4770-a396-5cc1a50a4b10)
+
+   ![Screenshot 2024-02-16 at 5 22 01 PM](https://github.com/SavaliyaZeel/GoogleLogin/assets/158541274/b809a2d9-dbbd-4077-91a6-1eebe1f9b493)
+
+- Step 12 : Google login function code.
 ```
+// Somewhere in your code
+signIn = async () => {
+  try {
+   // Check if your device supports Google Play
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    // Get the users ID token
+    const { idToken } = await GoogleSignin.signIn();
+  
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+  
+    // Sign-in the user with the credential
+    const userdata = await auth().signInWithCredential(googleCredential);
+    console.log("userdata",userdata);
 
-## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
-
-### For Android
-
-```bash
-# using npm
-npm run android
-
-# OR using Yarn
-yarn android
+  } catch (error) {
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      // user cancelled the login flow
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      // operation (e.g. sign in) is in progress already
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      // play services not available or outdated
+    } else {
+      // some other error happened
+    }
+  }
+};
 ```
-
-### For iOS
-
-```bash
-# using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
-
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
-
-## Step 3: Modifying your App
-
-Now that you have successfully run the app, let's modify it.
-
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
-
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
